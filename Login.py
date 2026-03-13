@@ -29,6 +29,7 @@ login_button = wait.until(EC.element_to_be_clickable((By.XPATH, xpath_value)))
 try:
     login_button.click()
     print("로그인 버튼 클릭 성공! 5초간 대기합니다...")
+    print("파일 내용 수정 완료")
     time.sleep(5)
 except:
     driver.execute_script("arguments[0].click();", login_button)
