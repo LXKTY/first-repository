@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains    
 import time
 
 class KanbanPage:
@@ -8,42 +9,46 @@ class KanbanPage:
         self.driver = driver
         self.wait = WebDriverWait(driver, 20)
         
-        # [전략] 'LEE_TEST'라는 텍스트를 가진 span의 부모 div를 찾습니다.
-        # 이 방식은 이미지나 글자 어디를 클릭해도 div 전체가 잡히므로 실패율이 낮습니다.
-        
+        # [전략] 절대 경로(Full XPATH)보다는 텍스트나 고유 속성을 활용하는 것이 화면 크기 변화에 강합니다.
         self.project_lee_test = (By.XPATH, '//*[@id="app"]/div/div[6]/div[2]/div[3]/section/div[1]/div[2]/div[4]/div/div[2]/div/div/div/div/div/div[2]/span')
+        # 칸반뷰 테스트 업무 (텍스트 기반으로 찾으면 스크롤 시에도 더 정확합니다)
         self.kanban_task = (By.XPATH, '//*[@id="/project_menu"]/div/li/ul/div[1]/div/li/ul/div[12]/div')
         
     def select_project(self):
-        # 'LEE_TEST'라는 텍스트를 가진 span 요소를 찾음
-        element = self.wait.until(EC.visibility_of_element_located(self.project_lee_test))
-        element.click()  # 해당 요소 클릭
+        # 'LEE_TEST' 프로젝트 선택
+        element = self.wait.until(EC.element_to_be_clickable(self.project_lee_test))
+        element.click()
         print("✅ 'LEE_TEST' 프로젝트 진입 성공")   
-        
-    
         
     def select_task(self):
         try:
-            # 1. 사이드바 메뉴가 뜰 때까지 잠시 대기
+            print("🔄 새로 열린 프로젝트 창으로 전환합니다...")
+        
+            # 1. [창 전환 로직] 현재 열린 모든 창의 핸들을 가져옵니다.
+            all_windows = self.driver.window_handles
+        
+            # 2. 마지막에 열린 창(새 창)으로 드라이버 제어권을 옮깁니다.
+            if len(all_windows) > 1:
+                self.driver.switch_to.window(all_windows[-1])
+                print(f"✅ 새 창으로 전환 완료: {self.driver.title}")
+            else:
+                print("⚠️ 새 창이 발견되지 않았습니다. 현재 창에서 계속 진행합니다.")
+
+            # 3. 새 창이 로딩될 때까지 잠시 대기
             time.sleep(2) 
-            
-            # 2. [스크롤 로직] 해당 요소가 보일 때까지 사이드바 내부를 스크롤함
-            # presence_of_element_located는 눈에 안 보여도 DOM에 있으면 잡습니다.
-            task_element = self.wait.until(EC.presence_of_element_located(self.kanban_task_path))
-            
-            # 3. 요소가 위치한 곳으로 부모 영역 스크롤 이동
-            self.driver.execute_script("arguments[0].scrollIntoView({block: 'center', behavior: 'smooth'});", task_element)
-            print("📜 '칸반뷰 테스트' 위치로 스크롤 이동")
-            time.sleep(1) # 이동 후 안정화 대기
-            
-            # 4. 강제 클릭
+        
+            # 4. 이제 사이드바에서 업무를 탐색합니다.
+            xpath_task = (By.XPATH, "//*[contains(@data-tooltip-text, '칸반뷰 테스트')] | //span[contains(text(), '칸반뷰 테스트')]")
+        
+            # 요소 대기 및 스크롤
+            task_element = self.wait.until(EC.presence_of_element_located(xpath_task))
+            self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", task_element)
+        
+            time.sleep(1)
             self.driver.execute_script("arguments[0].click();", task_element)
             print("✅ '칸반뷰 테스트' 업무 진입 성공")
-            
+
         except Exception as e:
             print(f"❌ 업무 진입 중 에러 발생: {e}")
-            self.driver.save_screenshot("scroll_error.png")
+            self.driver.save_screenshot("window_switch_error.png")
             raise
-        
-        
-        #0025
