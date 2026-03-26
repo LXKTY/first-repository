@@ -1,6 +1,7 @@
 from selenium import webdriver
 from Login_Page import LoginPage
 from Kanban_Page import KanbanPage
+from selenium.webdriver.common.by import By
 import time
 
 # 크롬 드라이버 실행
@@ -23,12 +24,15 @@ kanban_pg = KanbanPage(driver)
 # 1. 프로젝트 선택 및 진입
 kanban_pg.select_project()
 
-# 2. 이동 후 페이지 제목이나 특정 요소가 있는지 확인 (검증)
-# assert "프로젝트" in driver.page_source
-
-# 3. 업무 선택 및 진입
+# 2. 업무 선택 및 진입
 kanban_pg.select_task()
+kanban_pg.click_add_button()
+kanban_pg.input_kanban_title()
+kanban_pg.click_random_available_date()
+kanban_pg.input_content()
+kanban_pg.click_save_button()
 
 time.sleep(10)
+
 driver.quit()
 # 4T-2672
