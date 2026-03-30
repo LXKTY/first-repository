@@ -4,6 +4,8 @@ from Kanban_Page import KanbanPage
 from selenium.webdriver.common.by import By
 import time
 
+import Login_Page
+
 # 크롬 드라이버 실행
 driver = webdriver.Chrome()
 
@@ -26,13 +28,10 @@ kanban_pg.select_project()
 
 # 2. 업무 선택 및 진입
 kanban_pg.select_task()
-kanban_pg.click_add_button()
-kanban_pg.input_kanban_title()
-kanban_pg.click_random_available_date()
-kanban_pg.input_content()
-kanban_pg.click_save_button()
+kanban_pg.create_kanban_post()
 
-time.sleep(10)
+
+time.sleep(20)
 
 driver.quit()
 # 4T-2672
