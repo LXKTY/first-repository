@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
+node_modules/
+
+# Test output screenshots
+login_error_*.png
+result_*.png
+error_*.png
+edit_error_*.png
+task_entry_error.png
+final_error.png
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
